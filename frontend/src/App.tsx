@@ -8,6 +8,7 @@ import ToolsPage from "./pages/Tools";
 import ToolDetail from "./pages/ToolDetail";
 import HowItWorks from "./pages/HowItWorks";
 import Compare from "./pages/Compare";
+import ScanPage from "./pages/Scan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
               <Route path="/tools/:slug" element={<ToolDetail />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/compare" element={<Compare />} />
+              <Route path="/scan" element={<ScanPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

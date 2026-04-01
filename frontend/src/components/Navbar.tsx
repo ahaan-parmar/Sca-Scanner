@@ -6,6 +6,7 @@ const navLinks = [
   { to: "/", label: "Home" },
   { to: "/tools", label: "Tools" },
   { to: "/compare", label: "Compare" },
+  { to: "/scan", label: "Scan" },
   { to: "/how-it-works", label: "How It Works" },
 ];
 
@@ -36,7 +37,7 @@ const Navbar = () => {
             </Link>
           ))}
           <a
-            href="https://github.com/safe-npm/safe-npm"
+            href="https://github.com/ahaan-parmar/Sca-Scanner"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-2 inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
@@ -72,7 +73,7 @@ const Navbar = () => {
               </Link>
             ))}
             <a
-              href="https://github.com/safe-npm/safe-npm"
+              href="https://github.com/ahaan-parmar/Sca-Scanner"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-md px-3 py-2 text-sm text-muted-foreground"
