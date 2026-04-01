@@ -1,0 +1,71 @@
+{
+  "registry": "https://registry.npmjs.org",
+  "osv_api": "https://api.osv.dev/v1/query",
+  "osv_batch_api": "https://api.osv.dev/v1/querybatch",
+
+  "cache": {
+    "enabled": true,
+    "ttl_seconds": 3600,
+    "dir": ".safe-npm-cache"
+  },
+
+  "risk": {
+    "weights": {
+      "cve": 0.45,
+      "script": 0.20,
+      "typosquat": 0.15,
+      "maintainer": 0.10,
+      "license": 0.10
+    },
+    "thresholds": {
+      "low": 2.5,
+      "medium": 5.0,
+      "high": 7.5
+    }
+  },
+
+  "license": {
+    "restrictive": ["AGPL-3.0", "AGPL-3.0-only", "AGPL-3.0-or-later", "CC-BY-NC-4.0", "SSPL-1.0", "EUPL-1.1", "Commons Clause"],
+    "copyleft": ["GPL-2.0", "GPL-2.0-only", "GPL-2.0-or-later", "GPL-3.0", "GPL-3.0-only", "GPL-3.0-or-later", "BUSL-1.1"],
+    "weak_copyleft": ["LGPL-2.1", "LGPL-2.1-only", "LGPL-2.1-or-later", "LGPL-3.0", "LGPL-3.0-only", "MPL-2.0", "EPL-2.0"],
+    "permissive": ["MIT", "ISC", "BSD-2-Clause", "BSD-3-Clause", "Apache-2.0", "0BSD", "CC0-1.0", "Unlicense", "WTFPL", "Artistic-2.0", "BlueOak-1.0.0"]
+  },
+
+  "popularity": {
+    "very_low_downloads_weekly": 100,
+    "low_downloads_weekly": 1000
+  },
+
+  "typosquat": {
+    "max_distance": 2,
+    "min_package_length": 3
+  },
+
+  "maintainer": {
+    "new_package_days": 30,
+    "low_maintainer_threshold": 2,
+    "inactivity_days": 730,
+    "version_spike_threshold": 5
+  },
+
+  "script": {
+    "suspicious_commands": [
+      "curl", "wget", "fetch", "http", "https", "nc ", "netcat",
+      "bash", "sh ", "/bin/sh", "/bin/bash", "exec(", "eval(",
+      "child_process", "spawn", "execSync", "execFile",
+      "require('child_process')", "require(\"child_process\")",
+      "PowerShell", "powershell", "cmd.exe", "/cmd",
+      "base64", "atob", "btoa", "fromCharCode",
+      "process.env", "os.environ", "crypto.randomBytes"
+    ],
+    "obfuscation_patterns": [
+      "\\\\x[0-9a-fA-F]{2}",
+      "\\\\u[0-9a-fA-F]{4}",
+      "String\\.fromCharCode",
+      "Buffer\\.from.*base64",
+      "eval\\s*\\(",
+      "Function\\s*\\(",
+      "[0-9a-zA-Z+/=]{80,}"
+    ]
+  }
+}

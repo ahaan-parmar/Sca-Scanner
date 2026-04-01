@@ -1,0 +1,25 @@
+{
+  "name": "safe-npm",
+  "version": "1.0.0",
+  "description": "Production-grade CLI tool that scans npm packages for security risks before installation",
+  "main": "cli.js",
+  "bin": {
+    "safe-npm": "./cli.js"
+  },
+  "scripts": {
+    "start": "node cli.js",
+    "lint": "eslint ."
+  },
+  "keywords": ["security", "npm", "supply-chain", "sca", "vulnerability"],
+  "author": "safe-npm contributors",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
+  }
+}
