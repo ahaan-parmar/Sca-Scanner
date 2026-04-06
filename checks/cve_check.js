@@ -118,6 +118,41 @@ function severityToScore(level) {
   return map[level] ?? 1;
 }
 
+// ─── Fix version extractor ──────────────────────────────────────────────────
+
+/**
+ * Extract the recommended fix version from an OSV vulnerability record.
+ * Looks at affected[].ranges[].events for `fixed` entries (SEMVER ranges preferred).
+ *
+ * @param {object} vuln  OSV vulnerability record
+ * @returns {string|null}  e.g. "1.2.3" or null
+ */
+function extractFixVersion(vuln) {
+  if (!vuln.affected) return null;
+
+  let fixedVersion = null;
+
+  for (const affected of vuln.affected) {
+    const ranges = affected.ranges ?? [];
+    // Prefer SEMVER ranges, fall back to ECOSYSTEM
+    const semverRanges = ranges.filter((r) => r.type === 'SEMVER');
+    const candidates   = semverRanges.length > 0 ? semverRanges : ranges;
+
+    for (const range of candidates) {
+      for (const event of range.events ?? []) {
+        if (event.fixed) {
+          // Pick the latest-looking fix (simple string compare is fine for display)
+          if (!fixedVersion || event.fixed > fixedVersion) {
+            fixedVersion = event.fixed;
+          }
+        }
+      }
+    }
+  }
+
+  return fixedVersion;
+}
+
 // ─── Alias / withdrawn detection ────────────────────────────────────────────
 
 /**
@@ -187,6 +222,7 @@ async function runCveCheck(packageName, version) {
       url: `https://osv.dev/vulnerability/${vuln.id}`,
       published: vuln.published,
       modified: vuln.modified,
+      fixedIn: extractFixVersion(vuln),
     });
   }
 

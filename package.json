@@ -8,18 +8,28 @@
   },
   "scripts": {
     "start": "node cli.js",
+    "api": "node api/server.js",
     "lint": "eslint ."
   },
-  "keywords": ["security", "npm", "supply-chain", "sca", "vulnerability"],
+  "keywords": [
+    "security",
+    "npm",
+    "supply-chain",
+    "sca",
+    "vulnerability"
+  ],
   "author": "safe-npm contributors",
   "license": "MIT",
   "engines": {
     "node": ">=16.0.0"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
     "chalk": "^4.1.2",
     "commander": "^11.1.0",
+    "dotenv": "^17.4.0",
     "inquirer": "^8.2.6",
+    "node-cron": "^4.2.1",
     "ora": "^5.4.1"
   }
 }

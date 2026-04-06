@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-import { Shield, FileText, Terminal, ArrowRight, GitCompare } from "lucide-react";
+import { Shield, FileText, Terminal } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const weightData = [
@@ -62,13 +61,6 @@ const Index = () => (
         </p>
 
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link
-            to="/tools"
-            className="group inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:scale-105"
-          >
-            View Tools Directory
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
           <a
             href="https://github.com/safe-npm/safe-npm"
             target="_blank"
@@ -170,22 +162,6 @@ const Index = () => (
       </div>
     </section>
 
-    {/* ── Compare CTA ──────────────────────────────────────────────── */}
-    <section className="border-b border-border bg-gradient-to-b from-background to-[#0d1224]">
-      <div className="container mx-auto px-4 py-20 text-center">
-        <GitCompare className="mx-auto h-10 w-10 text-primary" />
-        <h2 className="mt-4 text-2xl font-bold text-foreground">How does safe-npm compare?</h2>
-        <p className="mx-auto mt-2 max-w-xl text-muted-foreground">
-          Side-by-side comparison against Snyk, Socket.dev, npm audit, OWASP Dependency-Check, and more.
-        </p>
-        <Link
-          to="/compare"
-          className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:scale-105"
-        >
-          View Comparison Table <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </section>
   </div>
 );
 

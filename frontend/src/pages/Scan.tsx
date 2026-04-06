@@ -1,20 +1,33 @@
 import { useCallback, useRef, useState } from "react";
-import { Upload, FileJson, X, ShieldCheck, AlertTriangle, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Upload, FileJson, X, ShieldCheck, AlertTriangle, Loader2, ChevronDown, ChevronUp, Download, Search } from "lucide-react";
 
 const API_BASE = "http://localhost:3001";
 
 type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+interface CveFinding {
+  id: string;
+  osvId: string;
+  severity: string;
+  score: number;
+  cvssScore: number;
+  summary: string;
+  aliases: string[];
+  url: string;
+  published: string;
+  fixedIn: string | null;
+}
 
 interface ScanResult {
   package: string;
   version: string;
   risk: { level: RiskLevel; score: number };
   findings: {
-    cve?: { count: number; ids?: string[] };
-    scripts?: { count: number; flags?: string[] };
-    typosquat?: { suspicious: boolean; similar?: string };
-    maintainer?: { flags?: string[] };
-    license?: { risk: string; license: string };
+    cve?: CveFinding[];
+    scripts?: { type: string; detail: string; severity: string }[];
+    typosquat?: { match: string; distance: number }[];
+    maintainer?: string[];
+    license?: { type: string; detail: string; severity: string }[];
   };
   popularity?: { data?: { weeklyDownloads?: number } };
 }
@@ -55,9 +68,11 @@ function RiskBadge({ level }: { level: RiskLevel }) {
 
 function ResultRow({ result, idx }: { result: ScanResult; idx: number }) {
   const [open, setOpen] = useState(false);
-  const cveCount  = result.findings?.cve?.count ?? 0;
-  const scriptCount = result.findings?.scripts?.count ?? 0;
-  const downloads = result.popularity?.data?.weeklyDownloads;
+  const cves        = result.findings?.cve ?? [];
+  const cveCount    = cves.length;
+  const scriptCount = result.findings?.scripts?.length ?? 0;
+  const downloads   = result.popularity?.data?.weeklyDownloads;
+  const fixable     = cves.filter((c) => c.fixedIn).length;
 
   return (
     <div className={`rounded-lg border border-border bg-card transition-all ${open ? "ring-1 ring-primary/30" : ""}`}>
@@ -73,6 +88,9 @@ function ResultRow({ result, idx }: { result: ScanResult; idx: number }) {
         <div className="flex items-center gap-3">
           {cveCount > 0 && (
             <span className="text-xs text-risk-high">{cveCount} CVE{cveCount > 1 ? "s" : ""}</span>
+          )}
+          {fixable > 0 && (
+            <span className="text-xs text-green-400">↑ {fixable} fixable</span>
           )}
           {scriptCount > 0 && (
             <span className="text-xs text-risk-medium">{scriptCount} script flag{scriptCount > 1 ? "s" : ""}</span>
@@ -92,10 +110,10 @@ function ResultRow({ result, idx }: { result: ScanResult; idx: number }) {
               <span className="uppercase tracking-wide font-semibold">Risk Score</span>
               <p className="mt-0.5 text-foreground">{result.risk.score} / 100</p>
             </div>
-            {result.findings?.license && (
+            {result.findings?.license && result.findings.license.length > 0 && (
               <div>
                 <span className="uppercase tracking-wide font-semibold">License</span>
-                <p className="mt-0.5 text-foreground">{result.findings.license.license || "—"}</p>
+                <p className="mt-0.5 text-foreground">{result.findings.license[0]?.detail || "—"}</p>
               </div>
             )}
             {downloads != null && (
@@ -104,44 +122,59 @@ function ResultRow({ result, idx }: { result: ScanResult; idx: number }) {
                 <p className="mt-0.5 text-foreground">{downloads.toLocaleString()}</p>
               </div>
             )}
-            {result.findings?.typosquat?.suspicious && (
+            {(result.findings?.typosquat ?? []).length > 0 && (
               <div>
                 <span className="uppercase tracking-wide font-semibold">Typosquat</span>
-                <p className="mt-0.5 text-risk-high">Similar to: {result.findings.typosquat.similar}</p>
+                <p className="mt-0.5 text-risk-high">Similar to: {result.findings!.typosquat![0].match}</p>
               </div>
             )}
           </div>
 
-          {cveCount > 0 && result.findings.cve?.ids && (
+          {cveCount > 0 && (
             <div>
               <span className="uppercase tracking-wide font-semibold">CVEs</span>
-              <div className="mt-1 flex flex-wrap gap-1">
-                {result.findings.cve.ids.slice(0, 8).map((id) => (
-                  <span key={id} className="rounded bg-[hsl(var(--risk-high-bg))] px-1.5 py-0.5 text-risk-high font-mono">{id}</span>
+              <div className="mt-1 space-y-1.5">
+                {cves.slice(0, 8).map((cve) => (
+                  <div key={cve.id} className="flex items-start gap-2 rounded bg-[hsl(var(--risk-high-bg))] px-2 py-1.5">
+                    <a
+                      href={cve.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-risk-high hover:underline shrink-0"
+                    >
+                      {cve.id}
+                    </a>
+                    <span className="text-muted-foreground flex-1">{cve.summary}</span>
+                    {cve.fixedIn && (
+                      <span className="shrink-0 rounded bg-green-950/50 px-1.5 py-0.5 text-green-400 font-mono">
+                        fix: {cve.fixedIn}
+                      </span>
+                    )}
+                  </div>
                 ))}
-                {result.findings.cve.ids.length > 8 && (
-                  <span className="text-muted-foreground">+{result.findings.cve.ids.length - 8} more</span>
+                {cves.length > 8 && (
+                  <p className="text-muted-foreground">+{cves.length - 8} more CVEs</p>
                 )}
               </div>
             </div>
           )}
 
-          {scriptCount > 0 && result.findings.scripts?.flags && (
+          {scriptCount > 0 && (
             <div>
               <span className="uppercase tracking-wide font-semibold">Script Flags</span>
               <div className="mt-1 flex flex-wrap gap-1">
-                {result.findings.scripts.flags.map((f, i) => (
-                  <span key={i} className="rounded bg-[hsl(var(--risk-medium-bg))] px-1.5 py-0.5 text-risk-medium font-mono">{f}</span>
+                {result.findings!.scripts!.map((s, i) => (
+                  <span key={i} className="rounded bg-[hsl(var(--risk-medium-bg))] px-1.5 py-0.5 text-risk-medium font-mono">{s.type}</span>
                 ))}
               </div>
             </div>
           )}
 
-          {result.findings?.maintainer?.flags && result.findings.maintainer.flags.length > 0 && (
+          {(result.findings?.maintainer ?? []).length > 0 && (
             <div>
               <span className="uppercase tracking-wide font-semibold">Maintainer Flags</span>
               <div className="mt-1 flex flex-wrap gap-1">
-                {result.findings.maintainer.flags.map((f, i) => (
+                {result.findings!.maintainer!.map((f, i) => (
                   <span key={i} className="rounded bg-secondary px-1.5 py-0.5 text-foreground">{f}</span>
                 ))}
               </div>
@@ -154,6 +187,32 @@ function ResultRow({ result, idx }: { result: ScanResult; idx: number }) {
 }
 
 type Phase = "idle" | "preview" | "scanning" | "done";
+type FilterLevel = "ALL" | RiskLevel;
+
+function exportJSON(results: ScanResult[], summary: Summary | null, pkgName: string) {
+  const data = { project: pkgName, scannedAt: new Date().toISOString(), summary, results };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `scan-${pkgName}.json`;
+  a.click();
+}
+
+function exportCSV(results: ScanResult[], pkgName: string) {
+  const header = "package,version,risk_level,risk_score,cve_count,fixable_cves,license,typosquat";
+  const rows = results.map((r) => {
+    const cves = r.findings?.cve ?? [];
+    const fixable = cves.filter((c) => c.fixedIn).length;
+    const license = r.findings?.license?.[0]?.detail ?? "";
+    const typosquat = (r.findings?.typosquat ?? []).length > 0 ? "yes" : "no";
+    return [r.package, r.version, r.risk.level, r.risk.score, cves.length, fixable, license, typosquat].join(",");
+  });
+  const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `scan-${pkgName}.csv`;
+  a.click();
+}
 
 export default function ScanPage() {
   const [phase, setPhase]               = useState<Phase>("idle");
@@ -167,6 +226,8 @@ export default function ScanPage() {
   const [current, setCurrent]           = useState<{ name: string; index: number; total: number } | null>(null);
   const [parseError, setParseError]     = useState("");
   const [apiError, setApiError]         = useState("");
+  const [filterLevel, setFilterLevel]   = useState<FilterLevel>("ALL");
+  const [search, setSearch]             = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const loadFile = (file: File) => {
@@ -269,11 +330,19 @@ export default function ScanPage() {
     setCurrent(null);
     setApiError("");
     setParseError("");
+    setSearch("");
+    setFilterLevel("ALL");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const sortedResults = [...results].sort((a, b) => b.risk.score - a.risk.score);
+  const filteredResults = sortedResults.filter((r) => {
+    const matchesLevel = filterLevel === "ALL" || r.risk.level === filterLevel;
+    const matchesSearch = search === "" || r.package.toLowerCase().includes(search.toLowerCase());
+    return matchesLevel && matchesSearch;
+  });
   const progress = current ? Math.round(((current.index - 1) / current.total) * 100) : (phase === "done" ? 100 : 0);
+  const LEVELS: FilterLevel[] = ["ALL", "CRITICAL", "HIGH", "MEDIUM", "LOW"];
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-10">
@@ -404,19 +473,74 @@ export default function ScanPage() {
             </div>
           )}
 
+          {/* Filter bar + Export */}
+          {sortedResults.length > 0 && phase === "done" && (
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative flex-1 min-w-[160px]">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search packages…"
+                  className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                {LEVELS.map((lvl) => (
+                  <button
+                    key={lvl}
+                    onClick={() => setFilterLevel(lvl)}
+                    className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
+                      filterLevel === lvl
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-border text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {lvl === "ALL" ? `All (${sortedResults.length})` : `${lvl} (${summary?.byLevel[lvl] ?? 0})`}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-1 ml-auto">
+                <button
+                  onClick={() => exportJSON(sortedResults, summary, pkgName)}
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Download className="h-3.5 w-3.5" /> JSON
+                </button>
+                <button
+                  onClick={() => exportCSV(sortedResults, pkgName)}
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Download className="h-3.5 w-3.5" /> CSV
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Results list */}
-          {sortedResults.length > 0 && (
+          {filteredResults.length > 0 && (
             <div>
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-base font-semibold text-foreground">Results</h2>
+                <h2 className="text-base font-semibold text-foreground">
+                  Results
+                  {filteredResults.length !== sortedResults.length && (
+                    <span className="ml-2 text-sm font-normal text-muted-foreground">
+                      {filteredResults.length} of {sortedResults.length}
+                    </span>
+                  )}
+                </h2>
                 <span className="text-xs text-muted-foreground">sorted by risk score</span>
               </div>
               <div className="space-y-2">
-                {sortedResults.map((r, i) => (
+                {filteredResults.map((r, i) => (
                   <ResultRow key={`${r.package}@${r.version}`} result={r} idx={i} />
                 ))}
               </div>
             </div>
+          )}
+
+          {filteredResults.length === 0 && sortedResults.length > 0 && (
+            <p className="text-sm text-muted-foreground">No packages match the current filter.</p>
           )}
 
           {/* Errors */}

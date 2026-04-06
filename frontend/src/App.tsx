@@ -4,11 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Index from "./pages/Index";
-import ToolsPage from "./pages/Tools";
-import ToolDetail from "./pages/ToolDetail";
 import HowItWorks from "./pages/HowItWorks";
-import Compare from "./pages/Compare";
+import ProjectsPage from "./pages/Projects";
+import ProjectDetail from "./pages/ProjectDetail";
 import ScanPage from "./pages/Scan";
+import IntegrationsPage from "./pages/Integrations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,11 +22,11 @@ const App = () => (
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/tools" element={<ToolsPage />} />
-              <Route path="/tools/:slug" element={<ToolDetail />} />
+              <Route path="/projects" element={<ProjectsPage />} />
+              <Route path="/projects/:id" element={<ProjectDetail />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/compare" element={<Compare />} />
               <Route path="/scan" element={<ScanPage />} />
+              <Route path="/integrations" element={<IntegrationsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

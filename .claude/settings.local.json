@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(node cli.js --help)",
+      "Bash(node cli.js cache clear)",
+      "Bash(node cli.js scan axios@0.21.1)",
+      "Bash(node cli.js scan axois)",
+      "Bash(node -e \":*)",
+      "Bash(node cli.js scan chalk)",
+      "Bash(node -e \"require\\('./core/scanner'\\); require\\('./checks/license_check'\\); require\\('./checks/popularity_check'\\); require\\('./core/reporter'\\); console.log\\('All modules load OK'\\)\")",
+      "Bash(node cli.js scan chalk --report --open)",
+      "Bash(node cli.js scan lodash@4.17.20)",
+      "Bash(node cli.js scan lodash@4.17.20 --report)",
+      "Bash(ls -la safe-npm-report-*.html)",
+      "Bash(node -e ':*)",
+      "Bash(cp:*)",
+      "Bash(npm run:*)",
+      "Bash(npm audit:*)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('vite:', p.devDependencies?.vite, '\\\\njsdom:', p.devDependencies?.jsdom\\)\")",
+      "Bash(npm show:*)",
+      "Bash(node -e \"const v=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const arr=JSON.parse\\(v\\); console.log\\(arr.filter\\(x=>x.startsWith\\('6.'\\)\\).slice\\(-5\\)\\)\")",
+      "Bash(node -e \"require\\('better-sqlite3'\\); console.log\\('ok'\\)\")",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3001)",
+      "Bash(taskkill:*)",
+      "Bash(cmd:*)",
+      "Bash(node -e \"require\\('./api/server.js'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/api/projects)",
+      "Bash(npm uninstall:*)",
+      "Bash(pkill -f \"node api/server.js\")",
+      "Bash(node api/server.js)",
+      "Bash(curl -s http://localhost:3001/api/health)",
+      "Bash(findstr LISTENING)",
+      "Bash(node \"C:\\\\Users\\\\ahaan\\\\OneDrive\\\\Desktop\\\\SCA Scanner\\\\api\\\\server.js\")",
+      "Bash(curl -s http://localhost:3001/api/projects)",
+      "Bash(curl -s -X POST http://localhost:3001/api/projects -H 'Content-Type: application/json' -d '{\"name\":\"test-project\"}')",
+      "Bash(curl:*)"
+    ]
+  }
+}
